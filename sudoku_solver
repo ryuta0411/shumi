@@ -1,0 +1,218 @@
+#include <bits/stdc++.h>
+#include <atcoder/all>
+using namespace std;
+#define ALL(a) (a).begin(),(a).end()
+#define rALL(a) (a).rbegin(),(a).rend()
+#define MP make_pair
+#define MT make_tuple
+typedef pair<int, int> Pint;
+typedef pair<int64_t, int64_t> Pll;
+typedef int64_t ll;
+
+constexpr ll MOD1 = 998244353;
+constexpr ll MOD2 = 1000000007;
+
+
+template <typename T>
+bool chmin(T &a, const T& b) {
+	if (a > b) {
+		a = b;
+		return true;
+	}
+	return false;
+}
+
+
+template <typename T>
+bool chmax(T &a, const T& b) {
+	if (a < b) {
+    	a = b;
+    	return true;
+	}
+	return false;
+}
+
+ll gcd(ll a, ll b) {
+    if (b==0) return a;
+    else return gcd(b, a%b);
+}
+
+
+//まずは簡単に愚直に埋まる部分を全部埋めて終わらない場合は仮定法です
+//実装が大変　方針がハズレなのか知らないけど殺す気か
+
+int cnt = 0;
+
+//不可能なら３　埋まったら1　埋まらないなら0
+int check(vector<set<char>> &A, vector<set<char>> &B, vector<set<char>> &C, vector<string> &T, int x, int y){
+	set<char> &AA = A.at(x), &BB = B.at(y), & CC = C.at(x / 3 * 3 + y / 3);
+	if (AA.size() == 8){
+		char a;
+		for (int i = 1; i <= 9; i++){
+			if (!AA.count('0' + i)){
+				a = '0' + i;
+				if (BB.count(a) || CC.count(a)){
+					return 3;
+				}
+				else {
+					AA.insert(a);
+					BB.insert(a);
+					CC.insert(a);
+					T.at(x).at(y) = a;
+					return 1;
+				}
+			}
+		}
+	}
+	else if (BB.size() == 8){
+		char a;
+		for (int i = 1; i <= 9; i++){
+			if (!BB.count('0' + i)){
+				a = '0' + i;
+				if (AA.count(a) || CC.count(a)){
+					return 3;
+				}
+				else {
+					AA.insert(a);
+					BB.insert(a);
+					CC.insert(a);
+					T.at(x).at(y) = a;
+					return 1;
+				}
+			}
+		}
+	}
+	else if (CC.size() == 8){
+		char a;
+		for (int i = 1; i <= 9; i++){
+			if (!CC.count('0' + i)){
+				a = '0' + i;
+				if (AA.count(a) || BB.count(a)){
+					return 3;
+				}
+				else {
+					AA.insert(a);
+					BB.insert(a);
+					CC.insert(a);
+					T.at(x).at(y) = a;
+					return 1;
+				}
+			}
+		}
+	}
+	int count = 0;
+	char val;
+	for (int i = 1; i <= 9; i++){
+		char a = i + '0';
+		if (AA.count(a)||BB.count(a)||CC.count(a)){
+			continue;
+		}
+		count++;
+		if (count > 1){
+			return 0;
+		}
+		val = a;
+	}
+	if (count == 0){
+		return 3;
+	}
+	else {
+		AA.insert(val);
+		BB.insert(val);
+		CC.insert(val);
+		T.at(x).at(y) = val;
+		return 1;
+	}
+
+}
+
+bool Fill(vector<string> &T){
+	for (int i = 0; i < 9; i++){
+		for (int j = 0; j < 9; j++){
+			if (T.at(i).at(j) == '0'){
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+void solve(vector<set<char>> A, vector<set<char>> B, vector<set<char>> C, vector<string> T){
+	for (int i = 0; i < 9; i++){
+		for (int j = 0; j < 9; j++){
+			if (T.at(i).at(j) != '0'){
+				continue;
+			}
+			int y = check(A, B, C, T, i, j);
+			if (y == 3){
+				return;
+			}
+			if (y == 1){
+				i = 0;
+				j = 0;
+			}
+		}
+	}
+	if (Fill(T)){
+		cout << "answer " << cnt + 1 << endl;
+		for (int i = 0; i < 9; i++){
+			cout << T.at(i) << endl;
+		}
+		cout << endl;
+		cnt++;
+	}
+	else {
+		for (int i = 0; i < 9; i++){
+			for (int j = 0; j < 9; j++){
+				if (T.at(i).at(j) == '0'){
+					
+					for (int k = 1; k <= 9; k++){
+						char a = '0' + k;
+						if (A.at(i).count(a) || B.at(j).count(a) || C.at(i / 3 * 3 + j / 3).count(a)){
+							continue;
+						}
+						T.at(i).at(j) = a;
+						vector<set<char>> AA = A, BB = B, CC = C;
+						AA.at(i).insert(a);
+						BB.at(j).insert(a);
+						CC.at(i / 3 * 3 + j / 3).insert(a);
+						solve(AA, BB, CC, T);
+					}
+					return;
+				}
+			}
+		}
+	}
+	return;
+}
+
+
+
+int main(){
+	
+	vector<string> mas(9);
+	for (int i = 0; i < 9; i++){
+		cin >> mas.at(i);
+	}
+	vector<set<char>> yoko(9), tate(9), hako(9);
+	for (int i = 0; i < 9; i++){
+		for (int j = 0; j < 9; j++){
+			char a = mas.at(i).at(j);
+			if (a != '0'){
+				if (yoko.at(i).count(a) || tate.at(j).count(a) || hako.at(i / 3 * 3 + j / 3).count(a)){
+					cout << endl;
+					cout << "invalid input" << endl;
+					return 0;
+				}
+				yoko.at(i).insert(a);
+				tate.at(j).insert(a);
+				hako.at(i / 3 * 3 + j / 3).insert(a);
+			}
+		}
+	}
+	cout << endl;
+	solve(yoko, tate, hako, mas);
+	if (cnt == 0){
+		cout << "No solutions" << endl;
+	}
+}
