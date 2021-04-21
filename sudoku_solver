@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include <atcoder/all>
+
 using namespace std;
 #define ALL(a) (a).begin(),(a).end()
 #define rALL(a) (a).rbegin(),(a).rend()
@@ -191,9 +191,28 @@ void solve(vector<set<char>> A, vector<set<char>> B, vector<set<char>> C, vector
 int main(){
 	
 	vector<string> mas(9);
+	bool innum = false;
+	set<char> Num;
+	for (int i = 0; i <= 9; i++){
+		Num.insert(i + '0');
+	}
 	for (int i = 0; i < 9; i++){
 		cin >> mas.at(i);
+		
+		if(mas.at(i).size() != 9){
+			innum = true;
+		}
+		for (int j = 0; j < 9; j++){
+			if (!Num.count(mas.at(i).at(j))){
+				innum = true;
+			}
+		}
 	}
+	if(innum){
+		cout << "invalid input" << endl;
+		return 0;
+	}
+
 	vector<set<char>> yoko(9), tate(9), hako(9);
 	for (int i = 0; i < 9; i++){
 		for (int j = 0; j < 9; j++){
